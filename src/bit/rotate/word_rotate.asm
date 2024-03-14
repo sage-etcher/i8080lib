@@ -14,16 +14,57 @@
 
 
 ;**********************************************************
-; procedures w$rotatel/w$rotater
-;   dynamically rotate bits in word(DE) N(ACC) times
-;     ACC  # of rotates
+; procedures w$rlc/w$rrc
+;   rotate bits in word(DE) 1 time 
 ;     DE   word to rotate
 ;     ret  DE
 ;
 ; procedures w$rotatel/w$rotatel(m1)
-;   cycles      0-255  4(n mod 8)+66
-;   cycles(m1)  0-255  5(n mod 8)+73
+;   cycles      
+;   cycles(m1)  
 ;**********************************************************
+
+
+;**********************************************************
+; procedure w$rlc
+;   rotate word(DE) 1 time, to the left.
+;     DE   word to rotate
+;     ret  DE
+;
+;   cycles      
+;   cycles(m1)  
+;**********************************************************
+w$rlc:
+	mov	a,d		;cy = prev hi bit7
+	ral
+	mov	a,e		;shift low-order byte left
+	ral			;lo bit0 = cy
+	mov	e,a		;cy = prev lo bit7
+	mov	a,d		;shift high-order byte left
+	ral			;hi bit0 = cy
+	mov	d,a		;cy = prev hi bit7
+	ret
+
+
+;**********************************************************
+; procedure w$rrc
+;   rotate word(DE) 1 time, to the right.
+;     DE   word to rotate
+;     ret  DE
+;
+;   cycles  
+;   cycles(m1)  
+;**********************************************************
+w$rrc:
+	mov	a,e		;cy = prev hi bit0
+	rar
+	mov	a,d		;shift low-order byte right
+	rar			;lo bit7 = cy
+	mov	d,a		;cy = prev lo bit0
+	mov	a,e		;shift high-order byte left
+	rar			;hi bit7 = cy
+	mov	e,a		;cy = prev hi bit0
+	ret
 
 
 ;**********************************************************
