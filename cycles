@@ -1,0 +1,217 @@
+
+key:
+n8    unsigned number (0 to 255)
+n16   unsigned number (0 to 65535)
+
+s8    signed number (-128 to 127)
+s16   signed number (-32768 to 32767)
+
+a8    address (0 to 255)
+a16   address (0 to 65535)
+
+b     bit location (0-7)
+
+r     byte register (A, B, C, D, E, H, or L)
+pp    word register (BC, DE, HL, or AF/PSW)
+dd    word register (BC, DE, HL, or SP)
+xx    word register (BC, DE, IX, or SP)
+yy    word register (BC, DE, IY, or SP)
+
+
+
+i8080       z80             T           M       cpu      machine
+mnemonic    mnemonic        states      states  cycles   cycles
+---------- --------------- ----------- ------- -------- --------
+            ld r,r'         4               1        4       5
+mvi r,n8    ld r,n8         4,3             2        7       9
+mov r,M     ld r,(HL)       4,3             2        7       9
+            ld r,(IX+s8)    4,4,3,5,3       5       19      24
+            ld r,(IY+s8)    4,4,3,5,3       5       19      24
+mov M,r     ld (HL),r       4,3             2        7       9
+            ld (IX+s8),r    4,4,3,5,3       5       19      24
+            ld (IY+s8),r    4,4,3,5,3       5       19      24
+mvi M,n8    ld (HL),n8      4,3,3           3       10      13
+            ld (IX+s8),n8   4,4,3,5,3       5       19      24
+            ld (IY+s8),n8   4,4,3,5,3       5       19      24
+ldax B      ld A,(BC)       4,3             2        7       9
+ldax D      ld A,(DE)       4,3             2        7       9
+lda a16     ld A,(a16)      4,3,3,3         4       13      17
+stax B      ld (BC),A       4,3             2        7       9
+stax D      ld (DE),A       4,3             2        7       9
+sta a16     ld (a16),A      4,3,3,3         4       13      17
+            ld A,I          4,5             2        9      11
+            ld A,R          4,5             2        9      11
+            ld I,A          4,5             2        9      11
+            ld R,A          4,5             2        9      11
+
+lxi dd,n16  ld dd,n16       4,3,3           2       10      12
+            ld IX,n16       4,4,3,3         4       14      18
+            ld IY,n16       4,4,3,3         4       14      18
+lhld a16    ld HL,(a16)     4,3,3,3,3       5       16      21
+            ld dd,(a16)     4,4,3,3,3,3     6       20      26
+            ld IX,(a16)     4,4,3,3,3,3     6       20      26
+            ld IY,(a16)     4,4,3,3,3,3     6       20      26
+shld a16    ld (a16),HL     4,3,3,3,3       5       16      21
+            ld (a16),dd     4,4,3,3,3,3     6       20      26
+            ld (a16),IX     4,4,3,3,3,3     6       20      26
+            ld (a16),IY     4,4,3,3,3,3     6       20      26
+sphl        ld SP,HL        6               1        6       7
+            ld SP,IX        4,6             2       10      12
+            ld SP,IY        4,6             2       10      12
+push pp     push pp         5,3,3           3       11      14
+            push IX         4,5,3,3         4       15      19
+            push IY         4,5,3,3         4       15      19
+pop pp      pop pp          4,3,3           3       10      13
+            pop IX          4,4,3,3         4       14      18
+            pop IY          4,4,3,3         4       14      18
+
+xchg        ex DE,HL        4               1        4       5
+            ex AF,AF'       4               1        4       5
+            exx             4               1        4       5
+xthl        ex (SP),HL      4,3,4,3,5       5       19      24
+            ex (SP),IX      4,4,3,4,3,5     6       23      29
+            ex (SP),IY      4,4,3,4,3,5     6       23      29
+            ldi             4,4,3,5         4       16      20
+            ldir            4,4,3,5,0/5    4/5     16/21   20/26
+            ldd             4,4,3,5         4       16      20
+            lddr            4,4,3,5,0/5    4/5     16/21   20/26
+            cpi             4,4,3,5         4       16      20
+            cpir            4,4,3,5,0/5    4/5     16/21   20/26
+            cpd             4,4,3,5         4       16      20
+            cpdr            4,4,3,5,0/5    4/5     16/21   20/26
+
+add r       add A,r         4               1        4       5
+adi n8      add A,n8        4,3             2        7       9    
+add M       add A,(HL)      4,3             2        7       9
+            add A,(IX+s8)   4,4,3,5,3       5       19      24
+            add A,(IY+s8)   4,4,3,5,3       5       19      24
+adc m       adc A,"         "               "        "       "
+aci n8      adc A,n8        "               "        "       "
+sub r       sub A,"         "               "        "       "
+sui n8      sub A,n8        "               "        "       "
+sbb r       sbc A,"         "               "        "       "
+sbi n8      sbc A,n8        "               "        "       "
+and r       and "           "               "        "       "
+ani n8      and n8          "               "        "       "
+ora r       or  "           "               "        "       "
+ori n8      or n8           "               "        "       "
+xra r       xor "           "               "        "       "
+xri n8      xor n8          "               "        "       "
+cmp r       cp  "           "               "        "       "
+cpi n8      cp n8           "               "        "       "
+inr r       inc r           4               1        4       5
+inr M       inc (HL)        4,3,3           3       11      14
+            inc (IX+s8)     4,4,3,5,4,3     6       23      29
+            inc (IY+s8)     4,4,3,5,4,3     6       23      29
+dcr r       dec r           4               1        4       5
+dcr M       dec (HL)        4,3,3           3       11      14
+            dec (IX+s8)     4,4,3,5,4,3     6       23      29
+            dec (IY+s8)     4,4,3,5,4,3     6       23      29
+
+daa         daa             4               1        4       5
+cma         cpl             4               1        4       5
+            neg             4,4             2        8      10
+cmc         ccf             4               1        4       5
+stc         scf             4               1        4       5
+nop         nop             4               1        4       5
+hlt         halt            4               1        4       5
+di          di              4               1        4       5
+ei          ei              4               1        4       5
+            im 0            4,4             2        8      10
+            im 1            4,4             2        8      10
+            im 2            4,4             2        8      10
+
+dad dd      add HL,dd       4,4,3           3       11      14
+            adc HL,dd       4,4,4,3         4       15      19
+            sbc HL,dd       4,4,4,3         4       15      19
+            add IX,xx       4,4,4,3         4       15      19
+            add IY,yy       4,4,4,3         4       15      19
+inx dd      inc dd          6               1        6       7
+            inc IX          4,6             2       10      12
+            inc IY          4,6             2       10      12
+dcx dd      dec dd          6               1        6       7
+            dec IX          4,6             2       10      12
+            dec IY          4,6             2       10      12
+
+rlc         rlca            4               1        4       5
+ral         rla             4               1        4       5
+rrc         rrca            4               1        4       5
+rar         rra             4               1        4       5
+            rlc r           4,4             2        8      10
+            rlc (HL)        4,4,4,3         4       15      19
+            rlc (IX+s8)     4,4,3,5,4,3     6       23      29
+            rlc (IY+s8)     4,4,3,5,4,3     6       23      29
+            rl  "           "               "        "       "
+            rrc "           "               "        "       "
+            rr  "           "               "        "       "
+            sla "           "               "        "       "
+            sra "           "               "        "       "
+            srl "           "               "        "       "
+            rld             4,4,3,4,3       5       18      23
+            rrd             4,4,3,4,3       5       18      23
+
+            bit b,r         4,4             2        8      10
+            bit b,(HL)      4,4,4           3       12      15
+            bit b,(IX+s8)   4,4,3,5,4       5       20      25
+            bit b,(IY+s8)   4,4,3,5,4       5       20      25
+            set b,r         4,4             2        8      10
+            set b,(HL)      4,4,4,3         4       15      19
+            set b,(IX+s8)   4,4,3,5,4,3     6       23      29
+            set b,(IY+s8)   4,4,3,5,4,3     6       23      29
+            res "           "               "        "       "
+
+jmp a16     jp a16          4,3,3           3       10      13
+jnz a16     jp nz,a16       4,3,3           3       10      13       
+jz a16      jp z,a16        4,3,3           3       10      13
+jnc a16     jp nc,a16       4,3,3           3       10      13
+jc a16      jp c,a16        4,3,3           3       10      13
+jpo a16     jp po,a16       4,3,3           3       10      13
+jpe a16     jp pe,a16       4,3,3           3       10      13
+jp a16      jp p,a16        4,3,3           3       10      13
+jm a16      jp m,a16        4,3,3           3       10      13
+            jr s8           4,3,5           3       12      15
+            jr c,s8         4,3,0/5        2/3      7/12    9/15
+            jr nc,s8        4,3,0/5        2/3      7/12    9/15           
+            jr z,s8         4,3,0/5        2/3      7/12    9/15           
+            jr nz,s8        4,3,0/5        2/3      7/12    9/15
+pchl        jp (HL)         4               1        4       5
+            jp (IX)         4,4             2        8      10
+            jp (IY)         4,4             2        8      10
+            djnz s8         5,3,0/5        2/3      8/13   10/16
+
+call a16    call a16        4,3,4,3,3       5       17      22
+cnz a16     call nz,a16     4,3,0/4,0/3,3  3/5     10/17   13/22
+cz a16      call z,a16      4,3,0/4,0/3,3  3/5     10/17   13/22  
+cnc a16     call nc,a16     4,3,0/4,0/3,3  3/5     10/17   13/22
+cc a16      call c,a16      4,3,0/4,0/3,3  3/5     10/17   13/22
+cpo a16     call po,a16     4,3,0/4,0/3,3  3/5     10/17   13/22
+cpe a16     call pe,a16     4,3,0/4,0/3,3  3/5     10/17   13/22
+cp a16      call p,a16      4,3,0/4,0/3,3  3/5     10/17   13/22
+cm a16      call m,a16      4,3,0/4,0/3,3  3/5     10/17   13/22
+ret         ret             4,3,3           3       10      13
+rnz         ret nz          5,0/3,0/3      1/3      5/11    5/14
+rz          ret z           5,0/3,0/3      1/3      5/11    5/14 
+rnc         ret nc          5,0/3,0/3      1/3      5/11    5/14 
+rc          ret c           5,0/3,0/3      1/3      5/11    5/14 
+rpo         ret po          5,0/3,0/3      1/3      5/11    5/14 
+rpe         ret pe          5,0/3,0/3      1/3      5/11    5/14 
+rp          ret p           5,0/3,0/3      1/3      5/11    5/14 
+rm          ret m           5,0/3,0/3      1/3      5/11    5/14 
+            reti            4,4,3,3         4       14      18
+            retn            4,4,3,3         4       14      18
+rst a8      rst a8          5,3,3           3       11      14
+
+in a8       in A,(a8)       4,3,4           3       11      14
+            in r,(C)        4,4,4           3       12      15
+            ini             4,5,3,4         4       16      20
+            inir            4,5,3,4,0/5    4/5     16/21   20/26
+            ind             4,5,3,4         4       16      20
+            indr            4,5,3,4,0/5    4/5     16/21   20/26
+out a8      out (a8),A      4,3,4           3       11      14
+            out r,(C)       4,4,4           3       12      15
+            outi            4,5,3,4         4       16      20
+            otir            4,5,3,4,0/5    4/5     16/21   20/26
+            outd            4,5,3,4         4       16      20
+            otdr            4,5,3,4,0/5    4/5     16/21   20/26
+
+
