@@ -1,0 +1,310 @@
+n8    unsigned number (0 to 255)
+n16   unsigned number (0 to 65535)
+
+s8    signed number (-128 to 127)
+s16   signed number (-32768 to 32767)
+
+a8    address (0 to 255)
+a16   address (0 to 65535)
+
+b     bit location (0-7)
+
+r     byte register (A, B, C, D, E, H, or L)
+pp    word register (BC, DE, HL, or AF/PSW)
+dd    word register (BC, DE, HL, or SP)
+xx    word register (BC, DE, IX, or SP)
+yy    word register (BC, DE, IY, or SP)
+
+()    dereference memory address
+[]    dereference bus address
+
+M     value at (HL)
+l     low order
+h     high order
+
+<-    asignment
+<->   swap
++=    add in place
+-=    subtract in place
+&=    and in place
+|=    or in place
+^=    xor in place
+
+~     bitwise not
+!     logical not
+
+==    logical equal
+!=    logical not equal
+
+CF    carry flag
+NC    not carry (!CF)
+PF    parity flag
+PO    parity even (!PF)
+PE    parity odd (PF)
+ZF    zero flag
+NZ    not zero (!ZF)
+SF    sign flag
+PS    positive sign (SF)
+NS    negative sign (!SF)
+
+
+
+
+8-bit moves
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+mov r,r     ld r,r         4              1       4       5        r<->r'
+mvi r,n8    ld r,n8        4,3            2       7       9        r<-n8
+mov r,M     ld r,(HL)      4,3            2       7       9        r<-(HL)
+            ld r,(IX+s8)   4,4,3,5,3      5       19      24       r<-(IX+s8)
+            ld r,(IY+s8)   4,4,3,5,3      5       19      24       r<-(IY+s8)
+mov M,r     ld (HL),r      4,3            2       7       9        (HL)<-r
+            ld (IX+s8),r   4,4,3,5,3      5       19      24       (IX+s8)<-r
+            ld (IY+s8),r   4,4,3,5,3      5       19      24       (IY+s8)<-r
+mvi M,n8    ld (HL),n8     4,3,3          3       10      13       (HL)<-n8
+            ld (IX+s8),n8  4,4,3,5,3      5       19      24       (IX+s8)<-n8
+            ld (IY+s8),n8  4,4,3,5,3      5       19      24       (IY+s8)<-n8
+ldax B      ld A,(BC)      4,3            2       7       9        A<-(BC)
+ldax D      ld A,(DE)      4,3            2       7       9        A<-(DE)
+lda a16     ld A,(a16)     4,3,3,3        4       13      17       A<-(a16)
+stax B      ld (BC),A      4,3            2       7       9        (BC)<-A
+stax D      ld (DE),A      4,3            2       7       9        (DE)<-A
+sta a16     ld (a16),A     4,3,3,3        4       13      17       (a16)<-A
+            ld A,I         4,5            2       9       11       A<-I
+            ld A,R         4,5            2       9       11       A<-R
+            ld I,A         4,5            2       9       11       I<-A
+            ld R,A         4,5            2       9       11       R<-A
+
+
+16-bit moves
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+lxi dd,n16  ld dd,n16      4,3,3          2       10      12       dd<-n16
+            ld IX,n16      4,4,3,3        4       14      18       IX<-n16
+            ld IY,n16      4,4,3,3        4       14      18       IY<-n16
+lhld a16    ld HL,(a16)    4,3,3,3,3      5       16      21       HL<-(a16)
+            ld dd,(a16)    4,4,3,3,3,3    6       20      26       dd<-(a16)
+            ld IX,(a16)    4,4,3,3,3,3    6       20      26       IX<-(a16)
+            ld IY,(a16)    4,4,3,3,3,3    6       20      26       IY<-(a16)
+shld a16    ld (a16),HL    4,3,3,3,3      5       16      21       (a16)<-HL
+            ld (a16),dd    4,4,3,3,3,3    6       20      26       (a16)<-dd
+            ld (a16),IX    4,4,3,3,3,3    6       20      26       (a16)<-IX
+            ld (a16),IY    4,4,3,3,3,3    6       20      26       (a16)<-IY
+sphl        ld SP,HL       6              1       6       7        SP<-HL
+            ld SP,IX       4,6            2       10      12       SP<-IX
+            ld SP,IY       4,6            2       10      12       SP<-IY
+push pp     push pp        5,3,3          3       11      14       (SP-2)<-dd;SP-=2
+            push IX        4,5,3,3        4       15      19       (SP-2)<-IX;SP-=2
+            push IY        4,5,3,3        4       15      19       (SP-2)<-IY;SP-=2
+pop pp      pop pp         4,3,3          3       10      13       dd<-(SP);SP+=2
+            pop IX         4,4,3,3        4       14      18       IX<-(SP);SP+=2
+            pop IY         4,4,3,3        4       14      18       IY<-(SP);SP+=2
+
+
+8-bit math/logic
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+add r       add A,r        4              1       4       5        A+=r
+adi n8      add A,n8       4,3            2       7       9        A+=n8
+add M       add A,(HL)     4,3            2       7       9        A+=(HL)
+            add A,(IX+s8)  4,4,3,5,3      5       19      24       A+=(IX+s8)
+            add A,(IY+s8)  4,4,3,5,3      5       19      24       A+=(IY+s8)
+adc "       adc A,"        "              "       "       "
+aci n8      adc A,n8       "              "       "       "        A+=n8+CF
+sub "       sub A,"        "              "       "       "
+sui n8      sub A,n8       "              "       "       "        A-=n8
+sbb "       sbc A,"        "              "       "       "
+sbi n8      sbc A,n8       "              "       "       "        A+=-n8-CF
+and "       and "          "              "       "       "
+ani n8      and n8         "              "       "       "        A&=n8
+ora "       or  "          "              "       "       "
+ori n8      or n8          "              "       "       "        A|=n8
+xra "       xor "          "              "       "       "
+xri n8      xor n8         "              "       "       "        A^=n8
+cmp "       cp  "          "              "       "       "
+cpi n8      cp n8          "              "       "       "        A-n8
+inr r       inc r          4              1       4       5        r++
+inr M       inc (HL)       4,3,3          3       11      14       (HL)++
+            inc (IX+s8)    4,4,3,5,4,3    6       23      29       (IX+s8)++
+            inc (IY+s8)    4,4,3,5,4,3    6       23      29       (IY+s8)++
+dcr r       dec r          4              1       4       5        r--
+dcr M       dec (HL)       4,3,3          3       11      14       (HL)--
+            dec (IX+s8)    4,4,3,5,4,3    6       23      29       (IX+s8)--
+            dec (IY+s8)    4,4,3,5,4,3    6       23      29       (IY+s8)--
+
+
+16-bit math
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+dad dd      add HL,dd      4,4,3          3       11      14       HL+=dd
+            adc HL,dd      4,4,4,3        4       15      19       HL+=dd+CF
+            sbc HL,dd      4,4,4,3        4       15      19       HL+=-dd-CF
+            add IX,xx      4,4,4,3        4       15      19       IX+=xx
+            add IY,yy      4,4,4,3        4       15      19       IY+=yy
+inx dd      inc dd         6              1       6       7        dd++
+            inc IX         4,6            2       10      12       IX++
+            inc IY         4,6            2       10      12       IY++
+dcx dd      dec dd         6              1       6       7        dd--
+            dec IX         4,6            2       10      12       IX--
+            dec IY         4,6            2       10      12       IY--
+
+
+bitwise rotate/shift
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+rlc         rlca           4              1       4       5        A0<-A7;CF<-A7;A<<1
+ral         rla            4              1       4       5        A0<-CF;CF<-A7;A<<1
+rrc         rrca           4              1       4       5        A7<-A0;CF<-A0;A>>1
+rar         rra            4              1       4       5        A7<-CF;CF<-A0;A>>1
+            rlc r          4,4            2       8       10       r0<-r7;CF<-r7;r<<1
+            rlc (HL)       4,4,4,3        4       15      19       "
+            rlc (IX+s8)    4,4,3,5,4,3    6       23      29       "
+            rlc (IY+s8)    4,4,3,5,4,3    6       23      29       "
+            rl  "          "              "       "       "        r0<-CF;CF<-r7;r<<1
+            rrc "          "              "       "       "        r7<-r0;CF<-r0;r>>1
+            rr  "          "              "       "       "        r7<-CF;CF<-r0;r>>1
+            sla "          "              "       "       "        r0<-0;CF<-r7;r<<1
+            sra "          "              "       "       "        r7<-r7;CF<-r0;r>>1
+            srl "          "              "       "       "        r7<-0;CF<-r0;r>>1
+            rld            4,4,3,4,3      5       18      23       Al<-Mh;Mh<-Ml;Ml<-Al
+            rrd            4,4,3,4,3      5       18      23       Al<-Ml;Mh<-Al;Ml<-Mh
+
+
+bit set/unset
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+            bit b,r        4,4            2       8       10       ZF<-rb
+            bit b,(HL)     4,4,4          3       12      15       ZF<-(HL)b
+            bit b,(IX+s8)  4,4,3,5,4      5       20      25       ZF<-(IX+s8)b
+            bit b,(IY+s8)  4,4,3,5,4      5       20      25       ZF<-(IY+s8)b
+            set b,r        4,4            2       8       10       rb<-1
+            set b,(HL)     4,4,4,3        4       15      19       "
+            set b,(IX+s8)  4,4,3,5,4,3    6       23      29       "
+            set b,(IY+s8)  4,4,3,5,4,3    6       23      29       "
+            res "          "              "       "       "        rb<-0
+
+
+exchange
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+xchg        ex DE,HL       4              1       4       5        DE<->HL
+            ex AF,AF'      4              1       4       5        AF<->AF'
+            exx            4              1       4       5        BC/DE/HL<->BC'/DE'/HL'
+xthl        ex (SP),HL     4,3,4,3,5      5       19      24       (SP)<->HL
+            ex (SP),IX     4,4,3,4,3,5    6       23      29       (SP)<->IX
+            ex (SP),IY     4,4,3,4,3,5    6       23      29       (SP)<->IY
+            ldi            4,4,3,5        4       16      20       (DE)<-(HL);DE/HL++;BC--
+            ldir           4,4,3,5,0/5    4/5     16/21   20/26    while BC!=0,ldi
+            ldd            4,4,3,5        4       16      20       (DE)<-(HL);DE/HL/BC--
+            lddr           4,4,3,5,0/5    4/5     16/21   20/26    while BC!=0,ldd
+            cpi            4,4,3,5        4       16      20       A-(HL);HL++;BC--
+            cpir           4,4,3,5,0/5    4/5     16/21   20/26    while BC!=0,cpi
+            cpd            4,4,3,5        4       16      20       A-(HL);HL/BC--
+            cpdr           4,4,3,5,0/5    4/5     16/21   20/26    while BC!=0,cpd
+
+
+special
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+daa         daa            4              1       4       5
+cma         cpl            4              1       4       5        A<-~A
+            neg            4,4            2       8       10       A<-0-A
+cmc         ccf            4              1       4       5        CF<-~CF
+stc         scf            4              1       4       5        CF<-1
+nop         nop            4              1       4       5
+hlt         halt           4              1       4       5        PC<-PC-1
+di          di             4              1       4       5        IFF<-0
+ei          ei             4              1       4       5        IFF<-1
+            im 0           4,4            2       8       10
+            im 1           4,4            2       8       10
+            im 2           4,4            2       8       10
+
+
+branch
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+jmp a16     jp a16         4,3,3          3       10      13       PC<-a16
+jnz a16     jp nz,a16      4,3,3          3       10      13       if NZ, PC<-a16
+jz a16      jp z,a16       4,3,3          3       10      13       if ZF, "
+jnc a16     jp nc,a16      4,3,3          3       10      13       if NC, "
+jc a16      jp c,a16       4,3,3          3       10      13       if CF, "
+jpo a16     jp po,a16      4,3,3          3       10      13       if PO, "
+jpe a16     jp pe,a16      4,3,3          3       10      13       if PE, "
+jp a16      jp p,a16       4,3,3          3       10      13       if PS, "
+jm a16      jp m,a16       4,3,3          3       10      13       if NS, "
+            jr s8          4,3,5          3       12      15       PC+=s8
+            jr c,s8        4,3,0/5        2/3     7/12    9/15     if CF, PC+=s8
+            jr nc,s8       4,3,0/5        2/3     7/12    9/15     if NC, "
+            jr z,s8        4,3,0/5        2/3     7/12    9/15     if ZF, "
+            jr nz,s8       4,3,0/5        2/3     7/12    9/15     if NZ, "
+pchl        jp (HL)        4              1       4       5        PC<-HL
+            jp (IX)        4,4            2       8       10       PC<-IX
+            jp (IY)        4,4            2       8       10       PC<-IY
+            djnz s8        5,3,0/5        2/3     8/13    10/16    B--;if B!=0, PC+=s8
+
+
+stack branch
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+call a16    call a16       4,3,4,3,3      5       17      22       push PC; PC<-a16
+cnz a16     call nz,a16    4,3,0/4,0/3,3  3/5     10/17   13/22    if NZ, push PC; PC<-a16
+cz a16      call z,a16     4,3,0/4,0/3,3  3/5     10/17   13/22    if ZF, "
+cnc a16     call nc,a16    4,3,0/4,0/3,3  3/5     10/17   13/22    if NC, "
+cc a16      call c,a16     4,3,0/4,0/3,3  3/5     10/17   13/22    if CF, "
+cpo a16     call po,a16    4,3,0/4,0/3,3  3/5     10/17   13/22    if PO, "
+cpe a16     call pe,a16    4,3,0/4,0/3,3  3/5     10/17   13/22    if PE, "
+cp a16      call p,a16     4,3,0/4,0/3,3  3/5     10/17   13/22    if PS, "
+cm a16      call m,a16     4,3,0/4,0/3,3  3/5     10/17   13/22    if NS, "
+ret         ret            4,3,3          3       10      13       pop PC
+rnz         ret nz         5,0/3,0/3      1/3     5/11    5/14     if NZ, pop PC
+rz          ret z          5,0/3,0/3      1/3     5/11    5/14     if ZF, "
+rnc         ret nc         5,0/3,0/3      1/3     5/11    5/14     if NC, "
+rc          ret c          5,0/3,0/3      1/3     5/11    5/14     if CF, "
+rpo         ret po         5,0/3,0/3      1/3     5/11    5/14     if PO, "
+rpe         ret pe         5,0/3,0/3      1/3     5/11    5/14     if PE, "
+rp          ret p          5,0/3,0/3      1/3     5/11    5/14     if PS, "
+rm          ret m          5,0/3,0/3      1/3     5/11    5/14     if NS, "
+            reti           4,4,3,3        4       14      18
+            retn           4,4,3,3        4       14      18
+rst a3      rst a8         5,3,3          3       11      14       call a8
+
+
+input/output
+
+i8080       z80            T              M       cpu     machine
+mnemonic    mnemonic       states         states  cycles  cycles
+---------- -------------- -------------- ------- ------- -------- -------------
+in a8       in A,(a8)      4,3,4          3       11      14       A<-[a8]
+            in r,(C)       4,4,4          3       12      15       A<-[C]
+            ini            4,5,3,4        4       16      20       (HL)<-[C];B--;HL++
+            inir           4,5,3,4,0/5    4/5     16/21   20/26    while B!=0,ini
+            ind            4,5,3,4        4       16      20       (HL)<-[C];B/HL--
+            indr           4,5,3,4,0/5    4/5     16/21   20/26    while B!=0,ind
+out a8      out (a8),A     4,3,4          3       11      14       [a8]<-A
+            out r,(C)      4,4,4          3       12      15       [C]<-r
+            outi           4,5,3,4        4       16      20       [C]<-(HL);B--;HL++
+            otir           4,5,3,4,0/5    4/5     16/21   20/26    while B!=0,outi
+            outd           4,5,3,4        4       16      20       [C]<-(HL);B/HL--
+            otdr           4,5,3,4,0/5    4/5     16/21   20/26    while B!=0,otdr
+
+
